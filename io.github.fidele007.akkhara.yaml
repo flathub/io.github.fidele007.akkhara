@@ -68,6 +68,6 @@ modules:
       - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
     sources:
       - type: archive
-        url: https://github.com/fidele007/akkhara-support/releases/download/1.2.0/akkhara_1.2.0_amd64.tar.gz
-        sha256: 3fef8ac342006d7ce4d98190b4140e2485736ed01f58789a4eb0b961087b4bd9
+        url: https://github.com/fidele007/akkhara-support/releases/download/1.3.1/akkhara_1.3.1_amd64.tar.gz
+        sha256: b3222dc516fc4a00e9f7d132f1a7056f033fb530457f62ba10eaeada0bf874e5
         strip-components: 0
