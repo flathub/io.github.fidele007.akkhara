@@ -25,8 +25,8 @@ modules:
       - --disable-static
     sources:
       - type: archive
-        url: https://github.com/libass/libass/releases/download/0.15.0/libass-0.15.0.tar.gz
-        sha256: 9cbddee5e8c87e43a5fe627a19cd2aa4c36552156eb4edcf6c5a30bd4934fe58
+        url: https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.gz
+        sha256: da7c348deb6fa6c24507afab2dee7545ba5dd5bbf90a137bfe9e738f7df68537
   - name: mpv
     buildsystem: simple
     cleanup:
@@ -43,11 +43,11 @@ modules:
       - echo "screenshot-directory=~/Pictures/mpv" > /app/etc/mpv/mpv.conf
     sources:
       - type: archive
-        url: https://github.com/mpv-player/mpv/archive/v0.35.0.tar.gz
-        sha256: dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00
+        url: https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz
+        sha256: 2ca92437affb62c2b559b4419ea4785c70d023590500e8a52e95ea3ab4554683
       - type: file
-        url: https://waf.io/waf-2.0.22
-        sha256: 0a09ad26a2cfc69fa26ab871cb558165b60374b5a653ff556a0c6aca63a00df1
+        url: https://waf.io/waf-2.1.5
+        sha256: 9d0b5d13e85f781b6976cfefb909b76cbc94a07419fa95d34216dca744257786
         dest-filename: waf
   - name: akkhara
     buildsystem: simple
@@ -68,6 +68,6 @@ modules:
       - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
     sources:
       - type: archive
-        url: https://github.com/fidele007/akkhara-support/releases/download/1.3.1/akkhara_1.3.1_amd64.tar.gz
-        sha256: c550815ab9646956130bca8c1ae9ab6e1927c2be969ff756bff5629dc59dc151
+        url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
+        sha256: f92c1e567b3912b25f0cc459a5484b6d4c9fc7192c40fc6bb09173f357d93d81
         strip-components: 0
