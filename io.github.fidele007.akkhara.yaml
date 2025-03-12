@@ -1,5 +1,4 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
-
 ---
 app-id: io.github.fidele007.akkhara
 runtime: org.freedesktop.Platform
@@ -14,41 +13,108 @@ finish-args:
   - --socket=fallback-x11 # fallback to x11 if wayland is not available
   - --socket=pulseaudio # Play sound with PulseAudio (?)
   - --device=dri # GPU acceleration if needed
+cleanup:
+  - '*.a'
+  - '*.la'
+  - /include
+  - /etc
+  - /man
+  - /lib/pkgconfig
+  - /lib/metatypes
+  - /share/bash-completion
+  - /share/doc
+  - /share/man
+  - /share/zsh
 
 modules:
-  - name: libass
-    # mpv won't build without this
+  # These are the required dependencies
+  - name: libmpv
     cleanup:
       - /include
       - /lib/pkgconfig
+      - /share/man
+    buildsystem: meson
     config-opts:
-      - --disable-static
+      - --buildtype=release
+      - -Dbuild-date=false
+      - -Dlibmpv=true
+      - -Dmanpage-build=disabled
+      - -Dlibarchive=disabled
+      - -Dlua=disabled
+      - -Djavascript=disabled
+      - -Duchardet=disabled
+      - -Ddrm=disabled
+      - -Ddvdnav=disabled
+      - -Dcplayer=false
+      - -Dtests=false
+      - -Djpeg=disabled
     sources:
-      - type: archive
-        url: https://github.com/libass/libass/releases/download/0.15.0/libass-0.15.0.tar.gz
-        sha256: 9cbddee5e8c87e43a5fe627a19cd2aa4c36552156eb4edcf6c5a30bd4934fe58
-  - name: mpv
-    buildsystem: simple
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-    build-commands:
-      - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-build-date
-        --disable-manpage-build --disable-alsa --enable-libarchive
-        --disable-lua --disable-javascript --disable-uchardet --disable-drm --disable-dvdnav
-      - python3 waf build
-      - python3 waf install
-    post-install:
-      # save screenshots at ~/Pictures/mpv
-      - echo "screenshot-directory=~/Pictures/mpv" > /app/etc/mpv/mpv.conf
-    sources:
-      - type: archive
-        url: https://github.com/mpv-player/mpv/archive/v0.35.0.tar.gz
-        sha256: dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00
-      - type: file
-        url: https://waf.io/waf-2.0.22
-        sha256: 0a09ad26a2cfc69fa26ab871cb558165b60374b5a653ff556a0c6aca63a00df1
-        dest-filename: waf
+      - type: git
+        url: https://github.com/mpv-player/mpv.git
+        tag: v0.39.0
+    modules:
+      - name: libplacebo
+        buildsystem: meson
+        config-opts:
+          - -Dvulkan=enabled
+          - -Dd3d11=disabled
+          - -Ddemos=False
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+        sources:
+          - type: git
+            url: https://github.com/haasn/libplacebo.git
+            tag: v7.349.0
+            commit: 1fd3c7bde7b943fe8985c893310b5269a09b46c5
+            x-checker-data:
+              type: git
+              tag-pattern: ^v([\d.]+)$
+        modules:
+          - name: glslang
+            buildsystem: cmake-ninja
+            config-opts:
+              - -DBUILD_SHARED_LIBS=ON
+            cleanup:
+              - /bin
+              - /include
+              - /lib/cmake
+            sources:
+              - type: archive
+                url: https://github.com/KhronosGroup/glslang/archive/refs/tags/11.12.0.tar.gz
+                sha256: 7795a97450fecd9779f3d821858fbc2d1a3bf1dd602617d95b685ccbcabc302f
+      - name: libass
+        cleanup:
+          - /include
+          - /lib/*.la
+          - /lib/pkgconfig
+        config-opts:
+          - --disable-static
+        sources:
+          - type: archive
+            url: https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz
+            sha256: eae425da50f0015c21f7b3a9c7262a910f0218af469e22e2931462fed3c50959
+      - name: ffmpeg
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/ffmpeg/examples
+        config-opts:
+          - --enable-shared
+          - --disable-static
+          - --enable-gnutls
+          - --disable-doc
+          - --disable-programs
+          - --disable-encoders
+          - --disable-muxers
+          - --enable-encoder=png
+          - --enable-libv4l2
+          - --enable-libdav1d
+        sources:
+          - type: git
+            url: https://git.ffmpeg.org/ffmpeg.git
+            commit: 34aa8449b8169783f2b15e3e4c3338e77584c865
+  # -----------------------------------------------------------------------------------
   - name: akkhara
     buildsystem: simple
     only-arches:
@@ -69,5 +135,5 @@ modules:
     sources:
       - type: archive
         url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
-        sha256: 87da2c27e3aa1f4d549c2f813ab1a64c73e9678118a6c6358f8d259c00bebe7d
+        sha256: fa6d5e036ebce61fc4cb20e504e7cbfd83041d0a189880979df5489d06c8b201
         strip-components: 0
