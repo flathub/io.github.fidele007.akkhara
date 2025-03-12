@@ -13,6 +13,18 @@ finish-args:
   - --socket=fallback-x11 # fallback to x11 if wayland is not available
   - --socket=pulseaudio # Play sound with PulseAudio (?)
   - --device=dri # GPU acceleration if needed
+cleanup:
+  - '*.a'
+  - '*.la'
+  - /include
+  - /etc
+  - /man
+  - /lib/pkgconfig
+  - /lib/metatypes
+  - /share/bash-completion
+  - /share/doc
+  - /share/man
+  - /share/zsh
 
 modules:
   # These are the required dependencies
@@ -21,21 +33,43 @@ modules:
       - /include
       - /lib/pkgconfig
       - /share/man
-    buildsystem: simple
-    build-commands:
-      - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-cplayer --disable-build-date
-        --disable-alsa
-      - python3 waf build
-      - python3 waf install
+    buildsystem: meson
+    config-opts:
+      - --buildtype=release
+      - -Dbuild-date=false
+      - -Dlibmpv=true
+      - -Dmanpage-build=disabled
+      - -Dlibarchive=disabled
+      - -Dlua=disabled
+      - -Djavascript=disabled
+      - -Duchardet=disabled
+      - -Ddrm=disabled
+      - -Ddvdnav=disabled
+      - -Dcplayer=false
+      - -Dtests=false
+      - -Djpeg=disabled
     sources:
       - type: git
         url: https://github.com/mpv-player/mpv.git
         tag: v0.39.0
-      - type: file
-        url: https://waf.io/waf-2.1.5
-        sha256: 9d0b5d13e85f781b6976cfefb909b76cbc94a07419fa95d34216dca744257786
-        dest-filename: waf
     modules:
+      - name: libplacebo
+        buildsystem: meson
+        config-opts:
+          - -Dvulkan=enabled
+          - -Dd3d11=disabled
+          - -Ddemos=False
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+        sources:
+          - type: git
+            url: https://github.com/haasn/libplacebo.git
+            tag: v7.349.0
+            commit: 1fd3c7bde7b943fe8985c893310b5269a09b46c5
+            x-checker-data:
+              type: git
+              tag-pattern: ^v([\d.]+)$
       - name: libass
         cleanup:
           - /include
@@ -47,45 +81,6 @@ modules:
           - type: archive
             url: https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz
             sha256: eae425da50f0015c21f7b3a9c7262a910f0218af469e22e2931462fed3c50959
-        modules:
-          - name: fribidi
-            cleanup:
-              - /bin
-              - /include
-              - /lib/pkgconfig
-              - /lib/*.la
-              - /share/man
-            buildsystem: meson
-            config-opts:
-              - --buildtype=release
-              - -Ddocs=false
-            sources:
-              - type: git
-                url: https://github.com/fribidi/fribidi.git
-                tag: v1.0.16
-                commit: 68162babff4f39c4e2dc164a5e825af93bda9983
-      - name: x264
-        cleanup:
-          - /include
-          - /lib/pkgconfig
-          - /share/man
-        config-opts:
-          - --disable-cli
-          - --enable-shared
-        sources:
-          - type: git
-            url: https://code.videolan.org/videolan/x264.git
-            commit: 570f6c70808287fc78e3f8f5372a095ec6ef7878
-      - name: nv-codec-headers
-        cleanup:
-          - "*"
-        no-autogen: true
-        make-install-args:
-          - PREFIX=/app
-        sources:
-          - type: git
-            url: https://github.com/FFmpeg/nv-codec-headers.git
-            commit: f2fb9b36d5e08d6211f7cf6377971c0570939e65
       - name: ffmpeg
         cleanup:
           - /include
@@ -106,26 +101,26 @@ modules:
           - type: git
             url: https://git.ffmpeg.org/ffmpeg.git
             commit: 34aa8449b8169783f2b15e3e4c3338e77584c865
-      # -----------------------------------------------------------------------------------
-      - name: akkhara
-        buildsystem: simple
-        only-arches:
-          - x86_64
-        build-commands:
-          # Copy all built files to Flatpak-based location
-          - mkdir -p /app/akkhara
-          - cp -r * /app/akkhara/
-          - chmod +x /app/akkhara/akkhara
-          - mkdir -p /app/bin
-          - ln -s /app/akkhara/akkhara /app/bin/akkhara
-          # Install the icon
-          - install -Dm644 io.github.fidele007.akkhara.svg -t /app/share/icons/hicolor/scalable/apps/
-          # Install the desktop file
-          - install -Dm644 io.github.fidele007.akkhara.desktop -t /app/share/applications/
-          # Install the AppStream metadata file.
-          - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
-        sources:
-          - type: archive
-            url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
-            sha256: fa6d5e036ebce61fc4cb20e504e7cbfd83041d0a189880979df5489d06c8b201
-            strip-components: 0
+  # -----------------------------------------------------------------------------------
+  - name: akkhara
+    buildsystem: simple
+    only-arches:
+      - x86_64
+    build-commands:
+      # Copy all built files to Flatpak-based location
+      - mkdir -p /app/akkhara
+      - cp -r * /app/akkhara/
+      - chmod +x /app/akkhara/akkhara
+      - mkdir -p /app/bin
+      - ln -s /app/akkhara/akkhara /app/bin/akkhara
+      # Install the icon
+      - install -Dm644 io.github.fidele007.akkhara.svg -t /app/share/icons/hicolor/scalable/apps/
+      # Install the desktop file
+      - install -Dm644 io.github.fidele007.akkhara.desktop -t /app/share/applications/
+      # Install the AppStream metadata file.
+      - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
+    sources:
+      - type: archive
+        url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
+        sha256: fa6d5e036ebce61fc4cb20e504e7cbfd83041d0a189880979df5489d06c8b201
+        strip-components: 0
