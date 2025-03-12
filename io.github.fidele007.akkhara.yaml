@@ -1,5 +1,4 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
-
 ---
 app-id: io.github.fidele007.akkhara
 runtime: org.freedesktop.Platform
@@ -16,58 +15,123 @@ finish-args:
   - --device=dri # GPU acceleration if needed
 
 modules:
-  - name: libass
-    # mpv won't build without this
+  # These are the required dependencies
+  - name: libmpv
     cleanup:
       - /include
       - /lib/pkgconfig
-    config-opts:
-      - --disable-static
-    sources:
-      - type: archive
-        url: https://github.com/libass/libass/releases/download/0.15.0/libass-0.15.0.tar.gz
-        sha256: 9cbddee5e8c87e43a5fe627a19cd2aa4c36552156eb4edcf6c5a30bd4934fe58
-  - name: mpv
+      - /share/man
     buildsystem: simple
-    cleanup:
-      - /include
-      - /lib/pkgconfig
     build-commands:
-      - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-build-date
-        --disable-manpage-build --disable-alsa --enable-libarchive
-        --disable-lua --disable-javascript --disable-uchardet --disable-drm --disable-dvdnav
+      - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-cplayer --disable-build-date
+        --disable-alsa
       - python3 waf build
       - python3 waf install
-    post-install:
-      # save screenshots at ~/Pictures/mpv
-      - echo "screenshot-directory=~/Pictures/mpv" > /app/etc/mpv/mpv.conf
     sources:
-      - type: archive
-        url: https://github.com/mpv-player/mpv/archive/v0.35.0.tar.gz
-        sha256: dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00
+      - type: git
+        url: https://github.com/mpv-player/mpv.git
+        tag: v0.39.0
       - type: file
-        url: https://waf.io/waf-2.0.22
-        sha256: 0a09ad26a2cfc69fa26ab871cb558165b60374b5a653ff556a0c6aca63a00df1
+        url: https://waf.io/waf-2.1.5
+        sha256: 9d0b5d13e85f781b6976cfefb909b76cbc94a07419fa95d34216dca744257786
         dest-filename: waf
-  - name: akkhara
-    buildsystem: simple
-    only-arches:
-      - x86_64
-    build-commands:
-      # Copy all built files to Flatpak-based location
-      - mkdir -p /app/akkhara
-      - cp -r * /app/akkhara/
-      - chmod +x /app/akkhara/akkhara
-      - mkdir -p /app/bin
-      - ln -s /app/akkhara/akkhara /app/bin/akkhara
-      # Install the icon
-      - install -Dm644 io.github.fidele007.akkhara.svg -t /app/share/icons/hicolor/scalable/apps/
-      # Install the desktop file
-      - install -Dm644 io.github.fidele007.akkhara.desktop -t /app/share/applications/
-      # Install the AppStream metadata file.
-      - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
-    sources:
-      - type: archive
-        url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
-        sha256: 87da2c27e3aa1f4d549c2f813ab1a64c73e9678118a6c6358f8d259c00bebe7d
-        strip-components: 0
+    modules:
+      - name: libass
+        cleanup:
+          - /include
+          - /lib/*.la
+          - /lib/pkgconfig
+        config-opts:
+          - --disable-static
+        sources:
+          - type: archive
+            url: https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz
+            sha256: eae425da50f0015c21f7b3a9c7262a910f0218af469e22e2931462fed3c50959
+        modules:
+          - name: fribidi
+            cleanup:
+              - /bin
+              - /include
+              - /lib/pkgconfig
+              - /lib/*.la
+              - /share/man
+            buildsystem: meson
+            config-opts:
+              - --buildtype=release
+              - -Ddocs=false
+            sources:
+              - type: git
+                url: https://github.com/fribidi/fribidi.git
+                tag: v1.0.16
+                commit: 68162babff4f39c4e2dc164a5e825af93bda9983
+      - name: x264
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/man
+        config-opts:
+          - --disable-cli
+          - --enable-shared
+        sources:
+          - type: git
+            url: https://code.videolan.org/videolan/x264.git
+            commit: 570f6c70808287fc78e3f8f5372a095ec6ef7878
+            x-checker-data:
+              type: json
+              url: https://code.videolan.org/api/v4/projects/536/repository/commits
+              commit-query: first( .[].id )
+              version-query: first( .[].id )
+              timestamp-query: first( .[].committed_date )
+      - name: nv-codec-headers
+        cleanup:
+          - "*"
+        no-autogen: true
+        make-install-args:
+          - PREFIX=/app
+        sources:
+          - type: git
+            url: https://github.com/FFmpeg/nv-codec-headers.git
+            commit: f2fb9b36d5e08d6211f7cf6377971c0570939e65
+      - name: ffmpeg
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/ffmpeg/examples
+        config-opts:
+          - --enable-shared
+          - --disable-static
+          - --enable-gnutls
+          - --disable-doc
+          - --disable-programs
+          - --disable-encoders
+          - --disable-muxers
+          - --enable-encoder=png
+          - --enable-libv4l2
+          - --enable-libdav1d
+        sources:
+          - type: git
+            url: https://git.ffmpeg.org/ffmpeg.git
+            commit: 34aa8449b8169783f2b15e3e4c3338e77584c865
+      # -----------------------------------------------------------------------------------
+      - name: akkhara
+        buildsystem: simple
+        only-arches:
+          - x86_64
+        build-commands:
+          # Copy all built files to Flatpak-based location
+          - mkdir -p /app/akkhara
+          - cp -r * /app/akkhara/
+          - chmod +x /app/akkhara/akkhara
+          - mkdir -p /app/bin
+          - ln -s /app/akkhara/akkhara /app/bin/akkhara
+          # Install the icon
+          - install -Dm644 io.github.fidele007.akkhara.svg -t /app/share/icons/hicolor/scalable/apps/
+          # Install the desktop file
+          - install -Dm644 io.github.fidele007.akkhara.desktop -t /app/share/applications/
+          # Install the AppStream metadata file.
+          - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
+        sources:
+          - type: archive
+            url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
+            sha256: fa6d5e036ebce61fc4cb20e504e7cbfd83041d0a189880979df5489d06c8b201
+            strip-components: 0
