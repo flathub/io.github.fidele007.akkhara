@@ -132,6 +132,6 @@ modules:
       - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
     sources:
       - type: archive
-        url: https://github.com/fidele007/akkhara-support/releases/download/1.4.0/akkhara-desktop_1.4.0_linux_amd64.tar.gz
+        url: https://github.com/fidele007/akkhara-support/releases/download/1.4.2/akkhara-desktop_1.4.2_linux_amd64.tar.gz
         sha256: fa6d5e036ebce61fc4cb20e504e7cbfd83041d0a189880979df5489d06c8b201
         strip-components: 0
