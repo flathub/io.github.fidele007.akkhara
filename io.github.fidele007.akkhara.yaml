@@ -133,5 +133,5 @@ modules:
     sources:
       - type: archive
         url: https://github.com/fidele007/akkhara-support/releases/download/1.4.2/akkhara-desktop_1.4.2_linux_amd64.tar.gz
-        sha256: 6280be03e7064290429c2ad09caf8c22a7bd67d6529e2a07dce488112c0b0597
+        sha256: 91aa0720feee90807e466594c595d4138ba374f27382cb186c9ec952d6a149aa
         strip-components: 0
