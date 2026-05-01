@@ -1,0 +1,38 @@
+From aca338e06b952917e2d05a5b91ec988974f0112d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Sabri=20=C3=9Cnal?= <yakushabb@gmail.com>
+Date: Fri, 1 May 2026 17:09:11 +0300
+Subject: [PATCH] Fix missing screenshots
+
+---
+ io.github.fidele007.akkhara.metainfo.xml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/io.github.fidele007.akkhara.metainfo.xml b/io.github.fidele007.akkhara.metainfo.xml
+index f0c143b..d591743 100644
+--- a/io.github.fidele007.akkhara.metainfo.xml
++++ b/io.github.fidele007.akkhara.metainfo.xml
+@@ -98,16 +98,16 @@
+   </releases>
+   <screenshots>
+     <screenshot type="default">
+-      <image>https://dashboard.snapcraft.io/site_media/appmedia/2024/03/1._Multilingual_Dictionaries-1711643883.png</image>
++      <image>https://imgproxy.flathub.org/insecure/dpr:2/f:avif/rs:fill-down/aHR0cHM6Ly9kbC5mbGF0aHViLm9yZy9tZWRpYS9pby9naXRodWIvZmlkZWxlMDA3LmFra2hhcmEvMjE5N2JjMDEwZjZjMTk0ZTllNmU3OTcwNjlhYzdmYmMvc2NyZWVuc2hvdHMvaW1hZ2UtMV9vcmlnLnBuZw</image>
+     </screenshot>
+     <screenshot>
+-      <image>https://dashboard.snapcraft.io/site_media/appmedia/2024/03/2._Offline-1711643883.png</image>
++      <image>https://imgproxy.flathub.org/insecure/dpr:2/f:avif/rs:fill-down/aHR0cHM6Ly9kbC5mbGF0aHViLm9yZy9tZWRpYS9pby9naXRodWIvZmlkZWxlMDA3LmFra2hhcmEvMjE5N2JjMDEwZjZjMTk0ZTllNmU3OTcwNjlhYzdmYmMvc2NyZWVuc2hvdHMvaW1hZ2UtMl9vcmlnLnBuZw</image>
+     </screenshot>
+     <screenshot>
+-      <image>https://dashboard.snapcraft.io/site_media/appmedia/2024/03/3._Approximative_Search-1711643883.png</image>
++      <image>https://imgproxy.flathub.org/insecure/dpr:2/f:avif/rs:fill-down/aHR0cHM6Ly9kbC5mbGF0aHViLm9yZy9tZWRpYS9pby9naXRodWIvZmlkZWxlMDA3LmFra2hhcmEvMjE5N2JjMDEwZjZjMTk0ZTllNmU3OTcwNjlhYzdmYmMvc2NyZWVuc2hvdHMvaW1hZ2UtM19vcmlnLnBuZw</image>
+     </screenshot>
+   </screenshots>
+   <content_rating type="oars-1.0">
+     <content_attribute id="money-purchasing">intense</content_attribute>
+   </content_rating>
+-</component>
+\ No newline at end of file
++</component>
+-- 
+2.54.0
+

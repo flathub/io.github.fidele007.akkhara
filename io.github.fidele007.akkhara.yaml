@@ -1,6 +1,6 @@
 app-id: io.github.fidele007.akkhara
 runtime: org.freedesktop.Platform
-runtime-version: '23.08'
+runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 command: akkhara
 separate-locales: false
@@ -11,29 +11,19 @@ finish-args:
   - --socket=fallback-x11 # fallback to x11 if wayland is not available
   - --socket=pulseaudio # Play sound with PulseAudio (?)
   - --device=dri # GPU acceleration if needed
+  - --own-name=com.fidele007.akkhara # To fix `Failed to register: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown` error
 cleanup:
+  - /include
+  - /lib/pkgconfig
   - '*.a'
   - '*.la'
-  - /include
-  - /etc
-  - /man
-  - /lib/pkgconfig
-  - /lib/metatypes
-  - /share/bash-completion
-  - /share/doc
-  - /share/man
-  - /share/zsh
 
 modules:
   # These are the required dependencies
   - name: libmpv
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/man
     buildsystem: meson
     config-opts:
-      - --buildtype=release
+      - -Dbuildtype=release
       - -Dbuild-date=false
       - -Dlibmpv=true
       - -Dmanpage-build=disabled
@@ -49,7 +39,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/mpv-player/mpv.git
-        tag: v0.39.0
+        tag: v0.41.0
+        commit: 41f6a645068483470267271e1d09966ca3b9f413
     modules:
       - name: libplacebo
         buildsystem: meson
@@ -57,14 +48,11 @@ modules:
           - -Dvulkan=enabled
           - -Dd3d11=disabled
           - -Ddemos=False
-        cleanup:
-          - /include
-          - /lib/pkgconfig
         sources:
           - type: git
             url: https://github.com/haasn/libplacebo.git
-            tag: v7.360.0
-            commit: b2ea27dceb6418aabfe9121174c6dbb232942998
+            tag: v7.360.1
+            commit: cee9b076f2c63104ccfd497fa79c39a867293ec4
             x-checker-data:
               type: git
               tag-pattern: ^v([\d.]+)$
@@ -73,46 +61,25 @@ modules:
             buildsystem: cmake-ninja
             config-opts:
               - -DBUILD_SHARED_LIBS=ON
+              - -DENABLE_OPT=OFF
             cleanup:
               - /bin
-              - /include
               - /lib/cmake
             sources:
               - type: archive
-                url: https://github.com/KhronosGroup/glslang/archive/refs/tags/11.12.0.tar.gz
-                sha256: 7795a97450fecd9779f3d821858fbc2d1a3bf1dd602617d95b685ccbcabc302f
+                url: https://github.com/KhronosGroup/glslang/archive/refs/tags/16.2.0.tar.gz
+                sha256: 01985335785c97906a91afe3cb5ee015997696181ec6c125bab5555602ba08e2
+
       - name: libass
-        cleanup:
-          - /include
-          - /lib/*.la
-          - /lib/pkgconfig
         config-opts:
           - --disable-static
         sources:
           - type: archive
             url: https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz
             sha256: eae425da50f0015c21f7b3a9c7262a910f0218af469e22e2931462fed3c50959
-      - name: ffmpeg
-        cleanup:
-          - /include
-          - /lib/pkgconfig
-          - /share/ffmpeg/examples
-        config-opts:
-          - --enable-shared
-          - --disable-static
-          - --enable-gnutls
-          - --disable-doc
-          - --disable-programs
-          - --disable-encoders
-          - --disable-muxers
-          - --enable-encoder=png
-          - --enable-libv4l2
-          - --enable-libdav1d
-        sources:
-          - type: git
-            url: https://git.ffmpeg.org/ffmpeg.git
-            commit: 34aa8449b8169783f2b15e3e4c3338e77584c865
+
   # -----------------------------------------------------------------------------------
+
   - name: akkhara
     buildsystem: simple
     only-arches:
@@ -130,8 +97,11 @@ modules:
       - install -Dm644 io.github.fidele007.akkhara.desktop -t /app/share/applications/
       # Install the AppStream metadata file.
       - install -Dm644 io.github.fidele007.akkhara.metainfo.xml -t /app/share/metainfo/
+      - rm /app/akkhara/{*.desktop,*.xml,*.svg}
     sources:
       - type: archive
         url: https://github.com/fidele007/akkhara-support/releases/download/1.4.2/akkhara-desktop_1.4.2_linux_amd64.tar.gz
         sha256: 91aa0720feee90807e466594c595d4138ba374f27382cb186c9ec952d6a149aa
         strip-components: 0
+      - type: patch
+        path: fix-screenshots.patch
