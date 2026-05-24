@@ -57,6 +57,7 @@ modules:
           - -Dvulkan=enabled
           - -Dd3d11=disabled
           - -Ddemos=False
+          - -Dlibdir=lib
         cleanup:
           - /include
           - /lib/pkgconfig
@@ -73,6 +74,7 @@ modules:
             buildsystem: cmake-ninja
             config-opts:
               - -DBUILD_SHARED_LIBS=ON
+              - -DENABLE_OPT=OFF
             cleanup:
               - /bin
               - /include
@@ -134,5 +136,5 @@ modules:
     sources:
       - type: archive
         url: https://github.com/fidele007/akkhara-support/releases/download/1.5.0/akkhara-desktop_1.5.0_linux_amd64.tar.gz
-        sha256: 30aec266afc981d9d3bf20ff9e94424ef575d35edfc87fcd75322b75ffb31447
+        sha256: 1ff8cf481c4158a6a926b668ee3675994085c24c4c68af165f63d1069b668713
         strip-components: 0
