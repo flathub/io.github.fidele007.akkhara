@@ -57,7 +57,6 @@ modules:
           - -Dvulkan=enabled
           - -Dd3d11=disabled
           - -Ddemos=False
-          - -Dlibdir=lib
         cleanup:
           - /include
           - /lib/pkgconfig
